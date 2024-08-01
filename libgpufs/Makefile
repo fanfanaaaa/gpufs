@@ -18,20 +18,21 @@ INSTALLDIR?=..
 REG?=32
 
 GPUFSLIB=../gpufs_con_lib.user/
-CUDA_ROOT:=/usr/local/cuda/
+CUDA_ROOT:=/usr/local/cuda-11.7
 CUDA_INCLUDE=-I$(CUDA_ROOT)/include -I$(GPUFSLIB) -I$(LIBGPUFSDIR)
 
+# sm_61, sm_80
 ifneq ($(dbg),1)
 	MACROS=-DDEBUG_NOINLINE=""
-	NVCC=$(CUDA_ROOT)/bin/nvcc -std=c++11 --generate-code code=sm_61,arch=compute_61 $(CUDA_INCLUDE) $(MACROS) -O3 -maxrregcount $(REG)
+	NVCC=$(CUDA_ROOT)/bin/nvcc -std=c++11 --generate-code code=sm_80,arch=compute_80 $(CUDA_INCLUDE) $(MACROS) -O3 -maxrregcount $(REG) -Xcompiler=-fPIC
 	OUTPUTDIR=release
 else
 	MACROS=-DDEBUG_NOINLINE="__noinline__" -DMALLOC_STATS -DTIMING_STATS -g
-	NVCC=$(CUDA_ROOT)/bin/nvcc -std=c++11 --generate-code code=sm_61,arch=compute_61 $(CUDA_INCLUDE) $(MACROS) -O0 -maxrregcount $(REG) --device-debug --debug -G
+	NVCC=$(CUDA_ROOT)/bin/nvcc -std=c++11 --generate-code code=sm_80,arch=compute_80 $(CUDA_INCLUDE) $(MACROS) -O0 -maxrregcount $(REG) --device-debug --debug -G -Xcompiler=-fPIC
 	OUTPUTDIR=debug
 endif
 
-CC=g++ $(CUDA_INCLUDE) -Wall -Wno-write-strings $(MACROS)
+CC=g++ $(CUDA_INCLUDE) -Wall -Wno-write-strings $(MACROS) -fPIC
 
 GPUFS_SOURCES=\
 $(OUTPUTDIR)/cpu_ipc.o\

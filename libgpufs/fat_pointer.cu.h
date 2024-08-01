@@ -251,8 +251,9 @@ public:
 		while( !resolved )
 		{
 			// Gather every thread that needs the same page
-			int invalidThreads = __ballot( 1 );
-
+			// int invalidThreads = __ballot( 1 );
+			// HYF
+			int invalidThreads = __ballot_sync(0xFFFFFFFF, 1 );
 			int leader = __ffs( invalidThreads );
 
 			// Correction because __ffs start counting from 1;
@@ -263,7 +264,7 @@ public:
 			bHelper = broadcast( bHelper, leader );
 
 			int want = (m_ptr.physPage == bHelper.l);
-			int wantThreads = __ballot( want );
+			int wantThreads = __ballot_sync(0xFFFFFFFF, want );
 			int numWants = __popc( wantThreads );
 
 			long long virtPage;
@@ -318,7 +319,7 @@ public:
 			while( !resolved )
 			{
 				// Gather every thread that needs the same page
-				int invalidThreads = __ballot( 1 );
+				int invalidThreads = __ballot_sync(0xFFFFFFFF, 1 );
 
 				int leader = __ffs( invalidThreads );
 
@@ -330,7 +331,7 @@ public:
 				bHelper = broadcast( bHelper, leader );
 
 				int want = (m_ptr.physPage == bHelper.l);
-				int wantThreads = __ballot( want );
+				int wantThreads = __ballot_sync(0xFFFFFFFF, want );
 				int numWants = __popc( wantThreads );
 
 				if( LANE_ID == leader )
@@ -382,8 +383,8 @@ public:
 			while( !resolved )
 			{
 				// Gather every thread that needs the same page
-				int invalidThreads = __ballot( 1 );
-
+				// int invalidThreads = __ballot( 1 );
+				int invalidThreads = __ballot_sync(0xFFFFFFFF, 1 );
 				int leader = __ffs( invalidThreads );
 
 				// Correction because __ffs start counting from 1;
@@ -394,7 +395,9 @@ public:
 				bHelper = broadcast( bHelper, leader );
 
 				int want = (m_ptr.physPage == bHelper.l);
-				int wantThreads = __ballot( want );
+				// HYF
+				// int wantThreads = __ballot_sync( want );
+				int wantThreads = __ballot_sync(0xFFFFFFFF, want );
 				int numWants = __popc( wantThreads );
 
 				long long virtPage;
@@ -434,8 +437,8 @@ public:
 //		time1Start = getTicks();
 
 		int valid = (m_ptr.valid);
-		int allValid = __all( valid );
-
+		// int allValid = __all( valid );
+		int allValid = __all_sync(0xFFFFFFFF, valid);
 		if( allValid )
 		{
 			uchar* pRet = m_mem + m_ptr.offset;
@@ -449,8 +452,9 @@ public:
 		while( true )
 		{
 			valid = (m_ptr.valid);
-			int invalidThread = __ballot( !valid );
-
+			// int invalidThread = __ballot( !valid );
+			// HYF
+			int invalidThread = __ballot_sync(0xFFFFFFFF, !valid );
 			int leader = __ffs( invalidThread );
 
 			if( 0 == leader )
@@ -467,7 +471,8 @@ public:
 			bHelper = broadcast( bHelper, leader );
 
 			int want = (m_ptr.virtPage == bHelper.l);
-			int wantThreads = __ballot( want );
+			// int wantThreads = __ballot( want );
+			int wantThreads = __ballot_sync(0xFFFFFFFF, want );
 			int numWants = __popc( wantThreads );
 
 			size_t physical = 0;
@@ -485,7 +490,9 @@ public:
 				old = atomicAdd( pRefCount, numWants );
 				DBGT( "start", WARP_ID, old, threadIdx.x );
 			}
-			old = __shfl( old, 0 );
+			// old = __shfl( old, 0 );
+			// HYF
+			old = __shfl_sync( 0xFFFFFFFF, old, 0  );
 
 			if( (old >= 0) && (line.fid == m_fid) && (line.virtPage == bHelper.l) )
 			{
@@ -510,8 +517,9 @@ public:
 						old = atomicCAS(pRefCount, 0, INT_MIN);
 						DBGT( "cas", WARP_ID, old, threadIdx.x );
 					}
-					old = __shfl( old, 0 );
-
+					// old = __shfl( old, 0 );
+					// HYF
+					old = __shfl_sync(0xFFFFFFFF, old, 0 );
 //					DBGT( "o", WARP_ID, old, threadIdx.x );
 
 					if( old > 0 )
@@ -525,8 +533,9 @@ public:
 								old = atomicAdd( pRefCount, numWants );
 								DBGT( "retry", WARP_ID, old, threadIdx.x );
 							}
-							old = __shfl( old, 0 );
-
+							// old = __shfl( old, 0 );
+							// HYF
+							old = __shfl_sync(0xFFFFFFFF, old, 0 );
 							// Let's double check
 							if( (old >= 0) && (line.fid == m_fid) && (line.virtPage == bHelper.l) )
 							{
@@ -542,7 +551,9 @@ public:
 									old = atomicSub( pRefCount, numWants );
 									DBGT( "revert retry", WARP_ID, old, threadIdx.x );
 								}
-								old = __shfl( old, 0 );
+								// old = __shfl( old, 0 );
+								// HYF
+								old = __shfl_sync(0xFFFFFFFF, old, 0 );
 
 								continue;
 							}
@@ -604,7 +615,9 @@ public:
 				}
 			}
 
-			physical = __shfl( physical, 0 );
+			// physical = __shfl( physical, 0 );
+			// HYF
+			physical = __shfl_sync(0xFFFFFFFF, physical, 0  );
 
 			if( want )
 			{
@@ -711,7 +724,7 @@ public:
 		while( !resolved )
 		{
 			// Gather every thread that needs the same page
-			int invalidThreads = __ballot( 1 );
+			int invalidThreads = __ballot_sync(0xFFFFFFFF, 1 );
 
 			int leader = __ffs( invalidThreads );
 
@@ -723,7 +736,7 @@ public:
 			bHelper = broadcast( bHelper, leader );
 
 			int want = (m_ptr.physPage == bHelper.l);
-			int wantThreads = __ballot( want );
+			int wantThreads = __ballot_sync(0xFFFFFFFF, want );
 			int numWants = __popc( wantThreads );
 
 			if( LANE_ID == leader )
@@ -767,7 +780,7 @@ public:
 			while( !resolved )
 			{
 				// Gather every thread that needs the same page
-				int invalidThreads = __ballot( 1 );
+				int invalidThreads = __ballot_sync(0xFFFFFFFF, 1 );
 
 				int leader = __ffs( invalidThreads );
 
@@ -779,7 +792,7 @@ public:
 				bHelper = broadcast( bHelper, leader );
 
 				int want = (m_ptr.physPage == bHelper.l);
-				int wantThreads = __ballot( want );
+				int wantThreads = __ballot_sync(0xFFFFFFFF, want );
 				int numWants = __popc( wantThreads );
 
 				if( LANE_ID == leader )
@@ -827,7 +840,7 @@ public:
 			while( !resolved )
 			{
 				// Gather every thread that needs the same page
-				int invalidThreads = __ballot( 1 );
+				int invalidThreads = __ballot_sync(0xFFFFFFFF, 1 );
 
 				int leader = __ffs( invalidThreads );
 
@@ -839,7 +852,7 @@ public:
 				bHelper = broadcast( bHelper, leader );
 
 				int want = (m_ptr.physPage == bHelper.l);
-				int wantThreads = __ballot( want );
+				int wantThreads = __ballot_sync( 0xFFFFFFFF, want );
 				int numWants = __popc( wantThreads );
 
 				long long virtPage;
@@ -882,7 +895,7 @@ public:
 		while( true )
 		{
 			valid = (m_ptr.valid);
-			int invalidThread = __ballot( !valid );
+			int invalidThread = __ballot_sync(0xFFFFFFFF, !valid );
 
 			int leader = __ffs( invalidThread );
 
@@ -900,7 +913,7 @@ public:
 			bHelper = broadcast( bHelper, leader );
 
 			int want = (m_ptr.virtPage == bHelper.l);
-			int wantThreads = __ballot( want );
+			int wantThreads = __ballot_sync( 0xFFFFFFFF, want );
 			int numWants = __popc( wantThreads );
 
 			volatile void* ptr = gmmap_warp(NULL, FS_BLOCKSIZE, 0, bitfeild2Acc( m_ptr.accBits ), m_fid, bHelper.l << FS_LOGBLOCKSIZE, numWants);

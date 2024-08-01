@@ -30,7 +30,8 @@
 
 #define NUM_BUSY_LISTS (256)
 
-#define FS_LOGBLOCKSIZE (12)
+// 决定page-size
+#define FS_LOGBLOCKSIZE (21)
 #define FS_BLOCKSIZE ( 1 << FS_LOGBLOCKSIZE )
 #define FS_BLOCKMASK (FS_BLOCKSIZE - 1);
 
