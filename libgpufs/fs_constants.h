@@ -23,15 +23,15 @@
 #include <sys/mman.h>
 
 // home many pages to swapout at once
-#define NUM_PAGES_SWAPOUT (64)
-#define NUM_SWAP_RETRIES (64)
-#define NUM_MEMORY_RINGS (1)
+#define NUM_PAGES_SWAPOUT (256)
+#define NUM_SWAP_RETRIES (256)
+#define NUM_MEMORY_RINGS (4)
 #define LOWER_WATER_MARK (0)
 
-#define NUM_BUSY_LISTS (256)
+#define NUM_BUSY_LISTS (1024)
 
 // 决定page-size
-#define FS_LOGBLOCKSIZE (21)
+#define FS_LOGBLOCKSIZE (12)
 #define FS_BLOCKSIZE ( 1 << FS_LOGBLOCKSIZE )
 #define FS_BLOCKMASK (FS_BLOCKSIZE - 1);
 
@@ -41,7 +41,7 @@
 
 // FS constants 
 // number of slots in the RB
-#define ASYNC_CLOSE_RINGBUF_SIZE (64) 
+#define ASYNC_CLOSE_RINGBUF_SIZE (256) 
 
 #define MAX_NUM_FILES (128)
 // must be power of 2
@@ -73,7 +73,7 @@
 #define RW_IPC_DIFF 2
 #define RW_IPC_TRUNC 3
 
-#define RW_HOST_WORKERS 4
+#define RW_HOST_WORKERS 1
 #define RW_SLOTS_PER_WORKER (RW_IPC_SIZE / RW_HOST_WORKERS)
 #define RW_SCRATCH_PER_WORKER 2
 

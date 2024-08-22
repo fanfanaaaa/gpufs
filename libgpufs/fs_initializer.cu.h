@@ -195,6 +195,7 @@ struct GPUGlobals{
 		cudaFree(hashMap);
 		cudaFree(async_close_rb_gpu);
 		delete streamMgr;
+
 	}
 };
 typedef volatile GPUGlobals* GPUGlobals_ptr;
